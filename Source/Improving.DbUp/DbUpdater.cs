@@ -34,11 +34,23 @@ namespace Improving.DbUp
             _seedData          = SeedData;
             _env               = env;
 
-            ConnectionString = ConfigurationManager.ConnectionStrings[connectionStringName].ConnectionString + ";App=" + databaseName + "Migrations";
             UseTransactions  = true;
             DatabaseName     = databaseName;
             FolderName       = folderName;
             ScriptVariables  = scriptVariables;
+            
+            string connectionString = ConfigurationManager.ConnectionStrings[connectionStringName].ConnectionString + ";App=" + databaseName + "Migrations";
+
+            if (ScriptVariables != null)
+            {
+                foreach (KeyValuePair<string, string> variable in ScriptVariables)
+                {
+                    if (connectionString.Contains($"${variable.Key}$"))
+                        connectionString = ConnectionString.Replace($"${variable.Key}$", variable.Value);
+
+                }
+            }
+            ConnectionString = connectionString;
         }
 
         public string FolderName       { get; }
